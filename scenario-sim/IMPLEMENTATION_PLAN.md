@@ -286,12 +286,77 @@ storylines, not part of the participant flow. Decisions taken:
 - The **satellite-rainfall debrief animation** (IMERG/CHIRPS/CMORPH) does **not**
   exist yet — the RIM2D/wflow GIFs are *model outputs*, not raw-rainfall animations.
 
-### Revised phasing
+### Product phasing
 
 ```
-P1  Scenario script + CRMA evidence cards + DOC decision + debrief        [done]
-P2  Live BN-DAG value binding + risk advisory                            [done]
-P3  Satellite-rainfall debrief animation (IMERG/CHIRPS/CMORPH)           [new asset]
-P4  Debrief: evidence → decision → loss & damage linkage (opt. server)   [next]
-P5  Hazard/impact (RIM2D/wflow/CLIMADA) as illustrative background only  [optional]
+Phase 1  Drought — all 11 events (RM rounds → RK debrief; no hazard/impact)   [in progress: 2/11]
+Phase 2  Flood   — all flood events (RM rounds → RK debrief)                   [needs flood BN replay]
+Phase 3  Drought + hazard/impact modelling (wflow WRSI + CLIMADA)             [later]
+Phase 4  Flood   + hazard/impact modelling (RIM2D + CLIMADA)                  [later]
 ```
+
+Within Phase 1: live BN-DAG evidence binding + risk advisory = **done**; a
+satellite-rainfall debrief animation (IMERG/CHIRPS/CMORPH) = optional polish.
+
+---
+
+## 10. Drought-only consolidation (current starting point)
+
+Scope the first production cut to the **11 drought events only**, built **purely on
+the deployed CRMA frontend + backend** — no hazard assets, no external runtime
+dependency. The simulation is a thin orchestration over two existing CRMA stages:
+
+```
+Risk Monitoring (RM)  →  DOC decision  →  Risk Knowledge (RK)
+  rounds: drought BN        Monitor/Watch/        debrief: EM-DAT
+  replay by init month      Warning/Emergency     loss & damage
+  (choropleth + BN DAG)                           storyline
+        ▲ hosted in the Risk Decisions stage (launcher shipped) ▲
+```
+
+**Backend: nothing to add.** All endpoints already exist and are deployed:
+`/api/ibf-drought-calendar`, `/api/ibf-drought-regions/{init}`,
+`/api/drought-bn-dag/{init}`, `/api/emdat-event-markdown/{DisNo}`. The drought
+monthly BN covers **1981–2026**, so every event's init months are in range.
+
+**The 11 drought events.** Each has a working **RK debrief deep link** in
+`pam_team/DevOps-hazard-modeling/README.md` — a replacement key is provided for
+every event (including the three without a native EM-DAT record), so there are no
+gaps. RK key = the README `event`; RK `month` = `debrief.rk_month`; replay steps a
+short pre-peak window of `init` months in RM.
+
+| # | Country | Event | RK month | RK key (Dis No / replacement) |
+|--:|---|---|---|---|
+| 1 | Burundi | 2021-22 | 2021-01 | `2021-IBF01-BDI` |
+| 2 | Djibouti | 2022 | 2022-06 | `2022-9370-DJI` |
+| 3 | Eritrea | Highlands 2021-23 | 2021-01 | `2021-IBF03-ERI` |
+| 4 | Ethiopia | Blue Nile 2021-22 | 2021-05 | `2021-9546-ETH` |
+| 5 | Kenya | Tana/ASAL 2020-23 | 2020-12 | `2020-9609-KEN` **built** |
+| 6 | Rwanda | Akagera 2016-17 | 2016-01 | `2016-IBF06-RWA` |
+| 7 | Somalia | South-Central 2020-23 | 2020-03 | `2020-9609-SOM` |
+| 8 | South Sudan | Upper Nile 2021-23 | 2021-01 | `2021-9639-SSD` |
+| 9 | Sudan | Eastern 2022 | 2022-01 | `2022-9788-SDN` |
+| 10 | Tanzania | Kagera 2021-22 | 2021-11 | `2021-9848-TZA` |
+| 11 | Uganda | Karamoja 2022 | 2022-07 | `2022-9436-UGA` **built** |
+
+Built: 2 (Kenya, Uganda). **To author: 9** — each is the proven drought template
+(3 rounds: outlook → deficit+CDI → confirmation) with its own init-month cursors,
+`emdat_event_key`, `debrief.rk_month`, country/admin1, and brief. `gid_1` is
+optional (auto-opens the BN DAG; otherwise the participant clicks the RM
+choropleth).
+
+### Deploy (production Cloud Run) — frontend rebuild only
+
+`_build_fe.sh` rsyncs the **arco-ibf working tree** → Cloud Build → Cloud Run, with
+`_API_URL` already wired to the deployed `crma-api`. Because Scenario Mode is a
+frontend addition over existing endpoints (and now has **no external asset**), the
+production deploy is one command:
+
+```bash
+cd cno-e4drr/devops/crma-fe-cr
+cp _build_fe.env.example _build_fe.env   # first time
+bash _build_fe.sh                        # stages arco-ibf (cmra-web) → builds → deploys public
+```
+
+No `crma-api` rebuild, no new env var, no GCS upload. Roll back via
+`gcloud run services update-traffic crma-frontend --to-revisions=<prev>=100`.
