@@ -259,3 +259,39 @@ round gating), `EvidenceQuiz.tsx`, `DecisionLog.tsx`, `HazardTab.tsx` (hotlink e
 3. **Nairobi loss narrative** — RK MDX key `2024-0247-KEN` is the *2024* event; the
    replay/hazard are *2026*. For `hindsight:off` this is invisible (loss only shown at
    debrief); decide whether debrief uses the 2024 EM-DAT MDX or a short 2026 loss note.
+
+---
+
+## 9. Realignment (note1) — evidence/CRMA-centric
+
+Following `note1.md`, the framing is reaffirmed as **forecast + observations +
+context → CRMA → decision**, *not* hazard/impact-model driven. The BN is the
+simulation engine; hazard/impact modelling is supporting science for building
+storylines, not part of the participant flow. Decisions taken:
+
+| Item | Decision |
+|---|---|
+| Competitive scoring / leaderboard | **Dropped.** Assessment is formative (reasoning capture + debrief). `quiz` kept as non-scored reflection prompts. |
+| Terminology | game→simulation, game script→scenario script, player→participant/stakeholder. Engine states stay `Monitor → Evaluate → Assess → Actionable_Risk` (no new "Trigger-Eligible" vocabulary). |
+| Hazard footprint (RIM2D/WRSI) | Moved from a decision-time tab to the **debrief** as context/provenance — never a decision input. |
+| Evidence values | **Bound to the live BN-DAG** (`raw`/`state` at the cursor); authored strings are the offline fallback. Surfaces the engine's actual per-date evidence, not a paraphrase. |
+| Risk advisory | Surface the engine's CRMA state + posterior + `P(High+Extreme)` (the cost-loss decision) as an advisory, separate from the participant's decision. |
+| CLIMADA / impact | Stays deferred; "impact" = recorded EM-DAT loss at debrief. |
+
+### Corrected facts (note1 overstatements)
+
+- **GEFS is not wired** — flood evidence is **ECMWF/IFS** only (GEFS = the retired
+  `forecast_agreement` node). Drought is **SEAS5/SEAS51** (already the basis). So
+  "forecast threshold exceedance" is mostly *surfacing existing BN values*.
+- The **satellite-rainfall debrief animation** (IMERG/CHIRPS/CMORPH) does **not**
+  exist yet — the RIM2D/wflow GIFs are *model outputs*, not raw-rainfall animations.
+
+### Revised phasing
+
+```
+P1  Scenario script + CRMA evidence cards + DOC decision + debrief        [done]
+P2  Live BN-DAG value binding + risk advisory                            [done]
+P3  Satellite-rainfall debrief animation (IMERG/CHIRPS/CMORPH)           [new asset]
+P4  Debrief: evidence → decision → loss & damage linkage (opt. server)   [next]
+P5  Hazard/impact (RIM2D/wflow/CLIMADA) as illustrative background only  [optional]
+```
