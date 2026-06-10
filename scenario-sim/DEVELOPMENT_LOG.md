@@ -95,6 +95,15 @@ tree → Cloud Build → Cloud Run; FE is frontend-only, API needs an API rebuil
    - Verified in prod: KEN `2020-12` = 37/5/3/**2** (47 admin-1) vs EA-wide
      146/40/26/**15** (227); one request returns all 528 months.
 
+9. **Flood RM calendar extended to 2019.**
+   - Flood daily BN data already covered the 2019+ event windows (years
+     2019/2021/2023/2024/2026; first `2019-05-10`), but the flood `risk-monitoring`
+     calendar config started at **2022**, clipping the 2019/2021 events. Set
+     `startYear` to **2019** so flood RM aligns with the RK flood storylines (2019+).
+     Frontend-only, no data/API change.
+   - File: `app/types/pipeline.ts`. `arco-ibf` `39b6fad`.
+   - **▶ Deploy:** Cloud Build `ccdde4ec`.
+
 ---
 
 ## Current live state
