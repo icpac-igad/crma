@@ -104,6 +104,20 @@ tree → Cloud Build → Cloud Run; FE is frontend-only, API needs an API rebuil
    - File: `app/types/pipeline.ts`. `arco-ibf` `39b6fad`.
    - **▶ Deploy:** Cloud Build `ccdde4ec`.
 
+10. **Flood Phase 2 — 10 events + hazard toggle (flood default).**
+    - Flood RM daily BN covers the 2019+ event windows, so built flood scenarios for
+      the **10 GHACOF flood events with a BN window** (Uganda/Eritrea/S.Sudan/Djibouti
+      2019, Ethiopia 2021, Rwanda/Somalia 2023, Burundi/Kenya/Tanzania 2024) on the
+      flood template: **daily rounds** (lead → escalation → onset) anchored to each
+      event's window; evidence binds to the live flood BN-DAG. Kept Nairobi 2026 →
+      **11 flood scenarios**. **Sudan Khartoum 2019** has no `2019-07` RM window →
+      pending a flood pipeline run.
+    - Scenario index gains a **hazard filter** (Flood / Drought / All), **flood
+      default** — 22 events otherwise cluttered the list (`ScenarioBrowser.tsx`, client).
+    - Files: `app/content/scenarios/*flood*.json`, `registry.ts`,
+      `ScenarioBrowser.tsx`, `page.tsx`. `arco-ibf` `947de3b` · design `9a9bb8c`.
+    - **▶ Deploy:** frontend (Cloud Build id in deploy log).
+
 ---
 
 ## Current live state
