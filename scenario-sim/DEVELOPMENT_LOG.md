@@ -119,6 +119,30 @@ tree → Cloud Build → Cloud Run; FE is frontend-only, API needs an API rebuil
       `ScenarioBrowser.tsx`, `page.tsx`. `arco-ibf` `947de3b` · design `9a9bb8c`.
     - **▶ Deploy:** frontend (Cloud Build id in deploy log).
 
+11. **Act I quiz — three-act reorientation (quiz/ design → code).**
+    - The scenario flow is reframed into the **three acts** from
+      `cmra/quiz/quiz_reorient_three_Acts.md`: Act I *what is happening?* →
+      Act II *what do we think is happening?* → Act III *what should we do and why?*
+    - **Act I** adds the **evidence-elicitation quiz** (`cmra/quiz/quiz_templates.md`):
+      one generic 9-question template for **all 23 events** (flood/drought option
+      wording only, no per-event authoring) — strongest evidence → hard/soft/virtual →
+      reliability → hazard condition → impact pathway → next evidence →
+      **pre-BN risk estimate (Q7) + DOC status (Q8)** → model-trust seed
+      (`3act-refinement3.md`). Each question surfaces its **BN purpose** so answers
+      read as inputs to the machinery, not a knowledge test. Quiz completion shows
+      the "Your answers generated:" evidence inventory and gates Act II.
+    - BN DAG panels + risk advisory **hidden in Act I** so Q7/Q8 are committed
+      before any model output (quiz commits before BN, per the template).
+    - **Act III debrief** opens with the **your-estimate vs engine-indication**
+      comparison (Q7/Q8 vs `risk.state`/`crma.state` at the final cursor) + the
+      model-criticism reflection ("expert rules made consistent — a risk indication,
+      not a calibrated probability"). Formative, unscored (Tier 0 of
+      `3act-refinement2.md` — no LLM).
+    - Answers persist per event: `localStorage` `scenario:<id>:act1`.
+    - Files: `app/lib/scenario/quiz.ts` (new), `ScenarioRunner.tsx`,
+      `docs/SCENARIO_MODE.md`. `arco-ibf` `35fee97`.
+    - **▶ Deploy:** frontend (Cloud Build id in deploy log).
+
 ---
 
 ## Current live state
