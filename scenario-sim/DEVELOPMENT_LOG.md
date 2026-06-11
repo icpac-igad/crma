@@ -106,12 +106,13 @@ tree → Cloud Build → Cloud Run; FE is frontend-only, API needs an API rebuil
 
 10. **Flood Phase 2 — 10 events + hazard toggle (flood default).**
     - Flood RM daily BN covers the 2019+ event windows, so built flood scenarios for
-      the **10 GHACOF flood events with a BN window** (Uganda/Eritrea/S.Sudan/Djibouti
-      2019, Ethiopia 2021, Rwanda/Somalia 2023, Burundi/Kenya/Tanzania 2024) on the
-      flood template: **daily rounds** (lead → escalation → onset) anchored to each
-      event's window; evidence binds to the live flood BN-DAG. Kept Nairobi 2026 →
-      **11 flood scenarios**. **Sudan Khartoum 2019** has no `2019-07` RM window →
-      pending a flood pipeline run.
+      **all 11 GHACOF flood events** (Uganda/Eritrea/S.Sudan/Djibouti 2019, Ethiopia
+      2021, Rwanda/Somalia 2023, Burundi/Kenya/Tanzania 2024, **Sudan Khartoum 2019**
+      on the shared Aug-2019 window `sdn_2019_08`) on the flood template: **daily
+      rounds** (lead → escalation → onset) anchored to each event's window; evidence
+      binds to the live flood BN-DAG. Kept Nairobi 2026 → **12 flood scenarios**.
+      (Eritrea and Sudan share the Aug-2019 window; each scenario focuses its own
+      country via `gid_1`.)
     - Scenario index gains a **hazard filter** (Flood / Drought / All), **flood
       default** — 22 events otherwise cluttered the list (`ScenarioBrowser.tsx`, client).
     - Files: `app/content/scenarios/*flood*.json`, `registry.ts`,
