@@ -162,7 +162,9 @@ tree → Cloud Build → Cloud Run; FE is frontend-only, API needs an API rebuil
       options); spoiler word-sweep clean; tsc + prod build + route smoke pass.
     - Files: `quiz.ts`, `ScenarioRunner.tsx`, `types/scenario.ts`, all 23 scenario
       JSONs, `docs/SCENARIO_MODE.md`. `arco-ibf` `e6c2546`.
-    - **▶ Deploy:** frontend (Cloud Build id in deploy log).
+    - **▶ Deploy (entries 11+12):** Cloud Build `9cdc834d` — SUCCESS, 5m11s;
+      verified live (`/scenario/kenya_nairobi_flood_2024` serves the Act I
+      banner, EPS literacy questions, and the event-specific `act1_quiz`).
 
 ---
 
