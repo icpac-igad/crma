@@ -141,6 +141,27 @@ tree → Cloud Build → Cloud Run; FE is frontend-only, API needs an API rebuil
     - Answers persist per event: `localStorage` `scenario:<id>:act1`.
     - Files: `app/lib/scenario/quiz.ts` (new), `ScenarioRunner.tsx`,
       `docs/SCENARIO_MODE.md`. `arco-ibf` `35fee97`.
+
+12. **Act I quiz realigned to each event — EPS literacy + per-event `act1_quiz`.**
+    - Template **binds to the event**: hints list the scenario's own round-1
+      evidence cards, admin-1, and its forecast system (ECMWF ensemble flood /
+      SEAS5 25-member drought) — event-specific feel, zero per-event authoring.
+    - Two **forecast-literacy** questions open the quiz for general participants:
+      *what is a deterministic forecast?* / *what is an ensemble prediction system?*
+      — plain-language teaching notes revealed after answering, tying the ensemble
+      spread to why forecasts are **soft** evidence (and mean-vs-tail).
+    - New optional scenario-JSON field **`act1_quiz`** (`ScenarioQuizQuestion` in
+      `types/scenario.ts`): event-specific questions inserted before the pre-BN
+      Q7/Q8 commit. **All 23 scenarios** carry 2 each, authored from the
+      **outcome-free** sections of their RK storyline MDX
+      (`app/content/events/rk/{fl,dr}-rk-<DisNo>.mdx`, the GHACOF73 deep-link set
+      in `DevOps-hazard-modeling/README.md`): climate drivers (ENSO/IOD state),
+      seasonal calendar, geography, exposure — impacts/response excluded so the
+      outcome stays hidden until Act III.
+    - Validation: 23/23 JSONs parse; 46 questions well-formed (`correct` ∈
+      options); spoiler word-sweep clean; tsc + prod build + route smoke pass.
+    - Files: `quiz.ts`, `ScenarioRunner.tsx`, `types/scenario.ts`, all 23 scenario
+      JSONs, `docs/SCENARIO_MODE.md`. `arco-ibf` `e6c2546`.
     - **▶ Deploy:** frontend (Cloud Build id in deploy log).
 
 ---
