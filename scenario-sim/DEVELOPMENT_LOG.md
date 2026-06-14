@@ -166,6 +166,21 @@ tree → Cloud Build → Cloud Run; FE is frontend-only, API needs an API rebuil
       verified live (`/scenario/kenya_nairobi_flood_2024` serves the Act I
       banner, EPS literacy questions, and the event-specific `act1_quiz`).
 
+13. **Event-specific hint on every Act I question.**
+    - Stock-take of the 13 questions/event: only q1/q2/q5 carried hints (round-1
+      cards, brief) and q0a/q0b carried explanations; q3/q4/q6 and the q7/q8/q9
+      pre-BN commit rendered **bare**. Now **every** template + commit question
+      carries an event-specific hint, derived from the scenario's own data — no
+      per-event authoring: q3/q7 from `signalNote()` (forecastability
+      strong/tail/surprise); q4 hazard-mechanism nudge (river/flash/urban for
+      flood, met/agri/hydro for drought); q5 brief + admin1 fallback; q6 from
+      `laterCardList()` (the not-yet-revealed "hidden" cards); q8 reuses the
+      authored `decision.checkpoint_prompt`; q9 conceptual → Act III payoff.
+    - Count unchanged (13/event); all-answered gate to Act II unchanged.
+    - File: `quiz.ts`. `arco-ibf` `1748bd2`.
+    - **▶ Deploy:** Cloud Build `886f6bae` — SUCCESS, 4m51s; verified live (hints
+      render and vary by event — flood "TAIL-risk case" vs drought "STRONG-signal").
+
 ---
 
 ## Current live state
