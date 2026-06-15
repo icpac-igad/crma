@@ -181,6 +181,22 @@ tree → Cloud Build → Cloud Run; FE is frontend-only, API needs an API rebuil
     - **▶ Deploy:** Cloud Build `886f6bae` — SUCCESS, 4m51s; verified live (hints
       render and vary by event — flood "TAIL-risk case" vs drought "STRONG-signal").
 
+14. **Precise event-date window + window-gated calendar.**
+    - **Specific dates, not `YYYY–YYYY`**: the event window is derived from the
+      round cursors (drought `YYYY-MM`, flood `YYYY-MM-DD`) and shown as an
+      "Event window: start → end (unit)" line in the runner; the calendar header
+      now reads the precise window instead of the year span.
+    - **Only this event's dates enabled**: `DisasterCalendar` gains optional
+      `windowStart`/`windowEnd` — cells outside `[start,end]` render muted
+      (`#f3f4f6`, 0.4 opacity), non-clickable, no count label (kept as ambient
+      context). In-window cells unchanged. `inWindow()` = lexicographic ISO
+      compare at the cell granularity (YYYY-MM monthly, YYYY-MM-DD daily).
+    - **Non-breaking**: both props optional; only the scenario runner passes them.
+      The dashboard `DisasterCalendar` (DashboardShell) is untouched.
+    - Files: `DisasterCalendar.tsx`, `ScenarioRunner.tsx`. `arco-ibf` `fb705d5`.
+    - **▶ Deploy:** Cloud Build `43b180d8` — SUCCESS, 5m27s; verified live
+      (flood `2024-04-09 → 2024-04-23 (daily)`; drought `2022-01 → 2022-12 (monthly)`).
+
 ---
 
 ## Current live state
