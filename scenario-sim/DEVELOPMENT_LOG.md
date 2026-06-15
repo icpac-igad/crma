@@ -197,16 +197,32 @@ tree → Cloud Build → Cloud Run; FE is frontend-only, API needs an API rebuil
     - **▶ Deploy:** Cloud Build `43b180d8` — SUCCESS, 5m27s; verified live
       (flood `2024-04-09 → 2024-04-23 (daily)`; drought `2022-01 → 2022-12 (monthly)`).
 
+15. **Fix: Act II round 2 crash on flood scenarios.**
+    - Flood virtual-evidence card `dbn_carry` (`R_obs`) carries no `value_by_date`
+      (the live BN supplies the value). It is revealed in **round 2**, where the
+      evidence stream's `authoredValue` called `Object.keys(card.value_by_date)` on
+      `undefined` → "Cannot convert undefined or null to object" → **client-side
+      exception on every flood scenario at Act II round 2**. Guard the undefined +
+      mark `value_by_date` optional in the type. Drought cards all have it → drought
+      was unaffected (the three-act refactor in 11–14 didn't introduce it; it was
+      latent in the flood path from the start).
+    - Files: `ScenarioRunner.tsx` (`authoredValue`), `types/scenario.ts`.
+      `arco-ibf` `a7501f9`.
+    - **▶ Deploy:** frontend (Cloud Build id in deploy log).
+
 ---
 
 ## Current live state
 
-- **Drought Phase 1 complete and deployed**: 11 drought scenarios + 1 flood seed.
-- Each scenario: event-scoped calendar (monthly) **+** country-zoomed choropleth
+- **Phases 1 & 2 complete and deployed**: **11 drought** (monthly) + **12 flood**
+  (daily) scenarios; `/scenario` index has a hazard filter (Flood / Drought / All,
+  **flood default**). Three-act flow (Act I evidence quiz → Act II belief updating →
+  Act III decision & debrief).
+- Each scenario: event-scoped calendar (window-gated) **+** country-zoomed choropleth
   **+** per-boundary BN DAG, all following the round cursor; evidence bound to the
   live BN-DAG; advisory from the engine; debrief = RK loss & damage deep link.
 - **Country filtering** is server-side on both calendar and choropleth.
-- No external runtime dependency (hazard assets are out of the drought flow).
+- No external runtime dependency (hazard assets out of the flow).
 
 ### Outstanding
 - **`cno-e4drr` push pending**: commit `acbdae7` is local only; `origin` is an SSH
@@ -221,9 +237,10 @@ tree → Cloud Build → Cloud Run; FE is frontend-only, API needs an API rebuil
 
 ## Where to extend next (for future development)
 
-- **Phase 2 — Flood**: only `nairobi_flood_2026` has a daily BN replay. Other flood
-  events need a `flood_data_prep` → Julia BN run first (verify ECMWF reforecast back
-  to 2019). Then author flood scenarios on the same schema (daily cursors).
+- **Phase 3/4 — hazard/impact**: add wflow WRSI + CLIMADA (drought) and RIM2D +
+  CLIMADA (flood) as supporting science / debrief context, not decision inputs.
+- **New flood events / dates**: need a `flood_data_prep` → Julia BN run for their
+  dates (the 11 GHACOF windows 2019–2024 + Nairobi 2026 are already in).
 - **Satellite-rainfall debrief animation** (IMERG/CHIRPS/CMORPH) — new asset; the
   current GIFs are model outputs, not raw rainfall.
 - **Hindsight toggle** (`mode_defaults.hindsight`) — schema field, not yet a UI toggle.
