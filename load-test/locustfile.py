@@ -25,11 +25,18 @@ queueing / 429 / 503 / slow tails well before 50 truly-concurrent users until
 that is raised. See README.md.
 """
 
+import os
 import random
 
-from locust import HttpUser, between, task
+from locust import HttpUser, LoadTestShape, between, task
 
-from scenarios import DROUGHT_PROFILE, FLOOD_PROFILE, TOPOJSON
+from scenarios import (
+    DROUGHT_PROFILE,
+    FLOOD_PROFILE,
+    MANIFEST,
+    MDX_RK_SAMPLE,
+    TOPOJSON,
+)
 
 # Think-time between rounds: a participant reads the evidence and answers the
 # Act-I quiz before advancing. Real sessions are tens of seconds per round.
@@ -39,6 +46,7 @@ THINK_MIN, THINK_MAX = 4.0, 12.0
 class Participant(HttpUser):
     # Locust waits this long between @task selections. Within a task we also
     # sleep explicitly to model per-round reading time.
+    weight = 3  # ~3 scenario participants per 1 MDX-stress user (see MdxStress)
     wait_time = between(2, 6)
 
     def on_start(self):
@@ -97,5 +105,79 @@ class Participant(HttpUser):
             self._think()  # inspect BN, advance cursor
 
         # --- ACT III: what should we do and why? Debrief opens RK storyline MDX. ---
-        self.client.get(p["debrief_mdx"], name=f"30 debrief mdx ({p['kind']})")
+        # The debrief resolves its file through the manifest first, then fetches
+        # the raw MDX. The manifest is the slow GCS read (~3-4 s cold) -- include
+        # it so the test exercises the real MDX failure mode under concurrency.
+        with self.client.get(
+            MANIFEST, name="29 mdx manifest", catch_response=True
+        ) as r:
+            if r.status_code >= 400:
+                r.failure(f"manifest {r.status_code}")
+        with self.client.get(
+            p["debrief_mdx"], name=f"30 debrief mdx ({p['kind']})", catch_response=True
+        ) as r:
+            if r.status_code >= 400:
+                r.failure(f"debrief mdx {r.status_code}")
         self._think()  # read your-estimate vs engine-indication comparison
+
+
+class MdxStress(HttpUser):
+    """
+    Dedicated MDX-API pressure (the 'failed abruptly' regression).
+
+    A full-session Participant only touches MDX once at the very end, so a pure
+    scenario test under-loads the MDX path. This user concentrates load on the
+    two MDX endpoints -- the heavy manifest read and per-file raw reads -- to
+    find where the API starts shedding (429/503) or timing out on GCS reads.
+
+    Mix it in at a chosen ratio via the --class-picker UI or by weighting, e.g.
+        locust -f locustfile.py Participant MdxStress --host ...
+    Keep its weight modest; it is meant to surface the MDX ceiling, not to be
+    the whole population.
+    """
+
+    weight = 1  # vs Participant (default weight 1); raise to bias toward MDX
+    wait_time = between(1, 4)
+
+    @task(1)
+    def manifest(self):
+        with self.client.get(
+            MANIFEST, name="MDX manifest", catch_response=True
+        ) as r:
+            if r.status_code >= 400:
+                r.failure(f"manifest {r.status_code}")
+
+    @task(4)
+    def raw(self):
+        path = random.choice(MDX_RK_SAMPLE)
+        with self.client.get(
+            f"/api/mdx/raw/{path}", name="MDX raw", catch_response=True
+        ) as r:
+            if r.status_code >= 400:
+                r.failure(f"raw {r.status_code}")
+
+
+# ---------------------------------------------------------------------------
+# Optional step-ladder load shape. Dormant by default (so plain `locust -f`
+# runs honour the manual -u/-r). Enable with env LADDER=1 to ramp through
+# distinct plateaus -- 5 -> 15 -> 30 -> 50 users -- so the per-level capacity
+# is readable in the stats instead of one flat ramp-and-hold. ~10 min total.
+# When the shape is active, Locust ignores -u/-r/-t and follows these stages.
+# ---------------------------------------------------------------------------
+if os.environ.get("LADDER") == "1":
+
+    class StepLadder(LoadTestShape):
+        # (cumulative_end_seconds, target_users, spawn_rate)
+        stages = [
+            (90, 5, 5),    # 0:00-1:30   warm-up, 5 users
+            (210, 15, 5),  # 1:30-3:30   15 users
+            (360, 30, 5),  # 3:30-6:00   30 users
+            (600, 50, 5),  # 6:00-10:00  50 users (the target)
+        ]
+
+        def tick(self):
+            t = self.get_run_time()
+            for end, users, rate in self.stages:
+                if t < end:
+                    return (users, rate)
+            return None  # past last stage -> stop the test

@@ -46,3 +46,31 @@ DROUGHT_PROFILE = {
 
 # Shared static asset the DisasterMap loads once (served by the API, ~90 KB).
 TOPOJSON = "/icpac_adm1v3.json"
+
+# --- MDX endpoints (the "failed abruptly" concern) -------------------------
+# The Act III debrief resolves its storyline file through the manifest, then
+# fetches the raw MDX. The manifest is one large JSON (~3000+ files) read from
+# GCS on every call -- it is the slow path (~3-4 s cold) and the prime suspect
+# for the MDX API failing under concurrency. We exercise both:
+#   GET /api/mdx/manifest                 (heavy read, no obvious server cache)
+#   GET /api/mdx/raw/{tab}/{filename}     (per-file GCS read)
+MANIFEST = "/api/mdx/manifest"
+
+# A spread of REAL rk storyline files (verified present in the live manifest),
+# so the dedicated MDX-stress task hits 200s, not 404s -- a load test that
+# 404s tells you nothing about MDX serving capacity. Mix of flood + drought so
+# different GCS objects are pulled (defeats any per-object edge caching).
+MDX_RK_SAMPLE = [
+    "rk/fl-rk-1990-0016-TZA.mdx",
+    "rk/fl-rk-1990-0352-KEN.mdx",
+    "rk/fl-rk-1990-04.mdx",
+    "rk/fl-rk-1990-05.mdx",
+    "rk/fl-rk-1990-08.mdx",
+    "rk/fl-rk-2024-04.mdx",
+    "rk/dr-rk-1990-01.mdx",
+    "rk/dr-rk-1991-01.mdx",
+    "rk/dr-rk-1991-10.mdx",
+    "rk/dr-rk-1991-9224-KEN.mdx",
+    "rk/dr-rk-1993-11.mdx",
+    "rk/dr-rk-2022-01.mdx",
+]

@@ -1,0 +1,6 @@
+# Python virtualenv for running Locust
+.venv/
+
+# Raw load-test output (CSV/HTML/log) — regenerated per run; RESULTS.md is the
+# committed summary.
+results/
