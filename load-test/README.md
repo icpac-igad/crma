@@ -3,6 +3,32 @@
 Answer one question: **how many participants can run a scenario act1 → act3 in
 parallel before the Cloud Run stack degrades or errors?** Initial target: **50**.
 
+## Results so far (2026-06-16)
+
+The first ladder run did **not** measure capacity — it exposed a functional bug:
+the FE proxied to the private API with an identity token Cloud Run rejected
+(`&format=full`), so 66% of requests failed (401→500/401), not from load. After
+the fix (`arco-ibf` `6fb07d8`, Cloud Build `2fbfc145`) the **same** ladder is
+clean and now measures real capacity:
+
+| | Pre-fix | Post-fix |
+|---|---|---|
+| Failures | 3,778 / 5,711 (**66%**) | **0 / 4,972 (0.0%)** |
+| 429 / 503 | 0 | 0 |
+| p99 latency | 150 ms* | 13 s |
+
+\* misleading — pre-fix 2/3 of requests failed *fast* (~50 ms, no work). Post-fix
+every request succeeds and does the real GCS + pandas work, so latency is now the
+honest signal. Per ladder level (current `max=2 / min=0`):
+
+- **≤ 25 users:** comfortable, p95 < 0.5 s.
+- **30–45 users:** tail blows out to ~2.7–3.2 s — CPU-bound groupby on 2 × 1-vCPU
+  plus `min-instances=0` cold starts during scale-up.
+- **50 users:** recovers (p95 1.1 s) once both instances are warm.
+
+**Verdict at 50: functional PASS** (zero errors, no overload). Performance is
+marginal only for a *synchronized* burst — addressed by the scaling levers below.
+
 ## Why Locust (not Selenium)
 
 | Tool | What it drives | Cost for 50 users | Use here |
@@ -75,19 +101,47 @@ Don't start at 50. Ramp in steps and watch where it breaks:
 - Long p99 tails from cold starts whenever traffic dips and instances scale to 0.
 - Possible API OOM at 512 Mi when flood + drought boundary parquets are all cached.
 
-## If 50 doesn't pass — the levers (in the cloudbuild.yaml deploy args)
+## The current limitation with `max-instances = 2`
 
-Both `crma-api-cr/cloudbuild.yaml` and `crma-fe-cr/cloudbuild.yaml`:
+The post-fix run shows the ceiling is **compute, not request slots**. FE
+(2 × concurrency 40 = 80) and API (2 × 80 = 160) request slots were never
+exhausted — that's why there are **zero 429/503**. What saturates is the
+**2 vCPUs** (2 instances × 1 CPU) doing the CPU/IO-bound work: the calendar
+server-side `groupby`, the per-row region serialization, and the ~118 KB/day
+BN-DAG JSON reads from GCS. Above ~25 concurrent *active* requests those 2 vCPUs
+queue, so the system degrades by **latency tail**, not errors. `min-instances=0`
+adds 9–13 s cold-start spikes whenever it scales from zero. So `max=2` can carry
+50 *functionally*, but the tail is multi-second during scale-up and bursts.
 
-| Lever | Now | Suggested for 50 |
+### Levers (in the two `cloudbuild.yaml` deploy args)
+
+`crma-api-cr/cloudbuild.yaml` and `crma-fe-cr/cloudbuild.yaml`:
+
+| Lever | Now | For a comfortable 50 / reach 100 |
 |-------|-----|------------------|
-| `--max-instances` | 2 | **10** (FE) / **10** (API) |
-| `--min-instances` | 0 | **1** (kills first-burst cold start) |
-| `--memory` (API) | 512Mi | **1Gi** (headroom for cached parquet) |
-| `--cpu` | 1 | keep 1; scale out, not up |
+| `--min-instances` | 0 | **1** — biggest single win (kills cold starts) |
+| `--max-instances` | 2 | **≥ 4** (FE + API) for burst headroom |
+| `--cpu` | 1 | **2** — the groupby/serialize work is CPU-bound |
+| `--memory` (API) | 512Mi | **1Gi** — headroom for cached parquet |
 | `--concurrency` | 40 FE / 80 API | leave; CPU is the limit, not slots |
 
-Re-run the same `locust` command after each change to confirm the curve moves.
+## Rebuilding & scaling — important interaction
+
+**Scaling lives in the `cloudbuild.yaml` deploy step, and a rebuild re-applies
+it.** This bit you once before, so make it deliberate:
+
+- **Permanent change** → edit `--max-instances` / `--min-instances` / `--cpu` /
+  `--memory` in the two `cloudbuild.yaml` files, then redeploy:
+  `cd cno-e4drr/devops/crma-fe-cr && bash _build_fe.sh` (and `crma-api-cr` for the
+  API). The FE build also patches `output: 'standalone'` into `next.config.js` and
+  relies on `typescript.ignoreBuildErrors` — `_build_fe.sh` handles both.
+- **Temporary bump (no rebuild)** → `gcloud run services update crma-frontend
+  --region=us-central1 --min-instances=1 --max-instances=4 --cpu=2 --memory=1Gi`
+  (and `crma-api`). Applies in seconds — but the **next `_build_*.sh` rebuild
+  resets it to the `cloudbuild.yaml` values.** (That is exactly why the
+  `2fbfc145` deploy reverted the earlier `min=1/max=5` bump back to `min=0/max=2`.)
+
+Re-run the same `locust` ladder after each change to confirm the curve moves.
 
 ## Files
 - `locustfile.py` — the virtual-participant act1→act3 journey.

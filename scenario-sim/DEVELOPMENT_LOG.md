@@ -210,6 +210,35 @@ tree → Cloud Build → Cloud Run; FE is frontend-only, API needs an API rebuil
       `arco-ibf` `a7501f9`.
     - **▶ Deploy:** frontend (Cloud Build id in deploy log).
 
+16. **FE→API auth fix — `&format=full` made Cloud Run reject the identity token.**
+    - A Locust load test (`cmra/load-test/`) of the act1→act3 flow surfaced that
+      **66% of requests were failing — functionally, not from load** (capacity
+      passed at 50 users: 5,711 reqs, p95 120 ms, zero 429/503). Root-caused to a
+      single defect: `apiFetch` requested its identity token from the metadata
+      server with **`&format=full`**, and Cloud Run service-to-service auth
+      **rejects full-format tokens** ("the access token could not be verified" →
+      401). Every live API call 401'd; routes doing `res.json()`
+      (regions / bn-dag / drought-calendar) turned the 401-HTML into a **500**,
+      MDX raw/media passed the **401** through, and a few Next-cached 200s
+      (flood-calendar, bn-dag) masked it. Proven via direct API calls (all 200 with
+      a *standard* token) + API `httpRequest` logs (401, 0 s) — no API-side bug.
+    - **Fix** (`arco-ibf/app/lib/api-fetch.ts`): drop `&format=full` → standard
+      token; **fail loud** (no token → clear `502` JSON instead of a silent
+      unauthenticated request that became a misleading 500); **`cache: 'no-store'`**
+      on proxied calls so a stale 200 / pinned error can't mask live state (also
+      forces every proxy route to render dynamically).
+    - The live image had been **stale** relative to the committed
+      route-handler/`apiFetch` work — the same "tokenless proxy → 403/500" class
+      the deploy docs flagged; a rebuild from current source + this fix resolves it.
+    - Also fixed the load harness: the drought profile used a non-existent slug
+      `kenya_drought_2022` (a correct 404) → real slug **`kenya_asal_drought_2020`**
+      with its actual cursors (`cmra/load-test/scenarios.py`).
+    - `arco-ibf` `6fb07d8` (branch `cmra-web`, push pending).
+    - **▶ Deploy:** frontend Cloud Build `2fbfc145` — SUCCESS, 4m41s; verified
+      live: all IBF region/calendar, both BN-DAG paths, MDX raw, and the drought
+      scenario page now return **200**. (The Cloud Build deploy reset scaling to
+      the `cloudbuild.yaml` baseline `min=0 / max=2`.)
+
 ---
 
 ## Current live state
