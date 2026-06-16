@@ -1,0 +1,11 @@
+# Claude Code conversation exports (transcripts)
+*-crma-*.txt
+scenario-sim/notebooks/*.txt
+
+# Regenerable per-event notebook cache (prep CSVs + BN output)
+scenario-sim/notebooks/cache/
+
+# Python / Jupyter cruft
+__pycache__/
+*.pyc
+.ipynb_checkpoints/
