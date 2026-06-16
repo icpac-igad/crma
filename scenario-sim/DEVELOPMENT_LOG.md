@@ -250,6 +250,19 @@ tree → Cloud Build → Cloud Run; FE is frontend-only, API needs an API rebuil
     - Files: `DisasterMap.tsx`, `ScenarioRunner.tsx`. `arco-ibf` `e9c96d9`.
     - **▶ Deploy:** frontend Cloud Build `456fcd6a` — SUCCESS, 5m49s; routes 200.
 
+18. **Enlarge the BN DAG in a popup (Act II).**
+    - Opt-in `expandable` prop on `BoundaryDagPanel`/`BoundaryDagPanelDrought`: an
+      "Enlarge ⤢" button + click-the-diagram opens a full-screen `DagModal` (new)
+      rendering the same BN DAG large — it's an SVG so it scales crisply, letting
+      participants read the evidence-parents → risk → CRMA elements. Closes on
+      backdrop / Close / Esc.
+    - **Non-breaking**: gated by the prop; dashboard panels pass nothing and are
+      unchanged. Scenario Act II opts both panels in. Typed `boundaryData` as
+      `Record<string,unknown>|null` (was `unknown`) so the modal renders cleanly.
+    - Files: `DagModal.tsx` (new), `BoundaryDagPanel.tsx`,
+      `BoundaryDagPanelDrought.tsx`, `ScenarioRunner.tsx`. `arco-ibf` `8c88c29`.
+    - **▶ Deploy:** frontend Cloud Build (id in deploy log).
+
 ---
 
 ## Current live state
