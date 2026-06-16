@@ -239,6 +239,17 @@ tree → Cloud Build → Cloud Run; FE is frontend-only, API needs an API rebuil
       scenario page now return **200**. (The Cloud Build deploy reset scaling to
       the `cloudbuild.yaml` baseline `min=0 / max=2`.)
 
+17. **Opt-in zoom/pan on the scenario choropleth.**
+    - `DisasterMap` gains an optional `enableZoom` prop: polygons + graticule wrap
+      in one transform layer with `d3.zoom` (wheel / drag / pinch, scaleExtent 1–12,
+      pan constrained to the viewport), a Reset button + usage hint, and the last
+      transform preserved across re-renders so zoom survives round changes. Boundary
+      clicks + tooltips still work (a click is not a drag).
+    - **Non-breaking**: gated by the prop. Dashboard `<DisasterMap />` passes nothing
+      and is unchanged; only the scenario map opts in (`enableZoom`).
+    - Files: `DisasterMap.tsx`, `ScenarioRunner.tsx`. `arco-ibf` `e9c96d9`.
+    - **▶ Deploy:** frontend Cloud Build `456fcd6a` — SUCCESS, 5m49s; routes 200.
+
 ---
 
 ## Current live state
