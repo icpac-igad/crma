@@ -35,13 +35,13 @@ FLOOD_PROFILE = {
 # A drought participant: monthly init cursor (outlook -> deficit+CDI -> confirm).
 DROUGHT_PROFILE = {
     "kind": "drought",
-    "event_id": "kenya_drought_2022",
+    "event_id": "kenya_asal_drought_2020",
     "country": "KEN",
     "calendar": "/api/ibf-drought-calendar?country=KEN",
-    "round_inits": ["2022-01", "2022-06", "2022-10"],
+    "round_inits": ["2020-06", "2020-12", "2022-12"],
     "regions": "/api/ibf-drought-regions/{init}",
     "bn_dag": "/api/drought-bn-dag/{init}",
-    "debrief_mdx": "/api/mdx/raw/rk/dr-rk-2022-01.mdx",
+    "debrief_mdx": "/api/mdx/raw/rk/dr-rk-2020-12.mdx",
 }
 
 # Shared static asset the DisasterMap loads once (served by the API, ~90 KB).
