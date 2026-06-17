@@ -1,5 +1,5 @@
 # CRMA — Continuous Risk Monitoring and Assessment
-## Scenario Simulation Exercise
+## Scenario Simulation Exercise: "Flight"-simulator for Disaster Operations Centre!
 
 🌐 **CRMA scenario website:** https://crma-frontend-yiyrp6yumq-uc.a.run.app/scenario
 
