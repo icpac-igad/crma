@@ -12,9 +12,12 @@ evidence weighed.
 
 A date **cursor** is stepped through the event window:
 
-- **Flood** — *daily*, a **~15-day** window (lead → escalation → onset).
-- **Drought** — *monthly*, a **multi-month** window (here the **OND** short-rains
-  season<sup>†</sup>).
+- **Flood** — *daily*: last **~7 days observed** rain + next **~7 days forecast**
+  (ECMWF ensemble), tested against a **return-period threshold** — the ~15-day
+  lead → escalation → onset window.
+- **Drought** — *monthly* (**SPI-3**): last **~6 months observed** + the **next
+  season** (**MAM / JJA / OND / DJF**) forecast at a **~4–6-month lead** from the
+  init month.
 
 ---
 
@@ -49,5 +52,54 @@ damage** is then revealed and compared with their call and with the model.
 
 *The end outcome — each admin-1 graded green → red on the available evidence
 (Risk Monitoring, Dec 2023).*
+
+---
+
+## Repositories
+
+- **Scenario app & CRMA frontend** — the `arco-ibf` web app used to run this
+  exercise: https://github.com/icpac-igad/arco-ibf
+- **Drought Bayesian-network analysis** — SPI-3 monthly BN (evidence → risk grade
+  → CRMA decision): https://github.com/nishadhka/bn-ibf/tree/jua-bnet/drought_ibf
+- **Flood Bayesian-network analysis** — daily BN on the same topology:
+  https://github.com/nishadhka/bn-ibf/tree/jua-bnet/flood_ibf
+- **EPS data-streaming method** — GRIB-index + Kerchunk for ensemble forecasts:
+  https://github.com/icpac-igad/grib-index-kerchunk
+- **Storylines & hazard modelling** — event storylines and hazard model DevOps:
+  https://github.com/icpac-igad/DevOps-hazard-modeling
+
+## Data sources
+
+Analysis-Ready, Cloud-Optimized (**ARCO**) datasets and streaming formats:
+
+- **Observations** (ERA5 SPI, IMERG …):
+  https://source.coop/e4drr-project/observations
+- **Forecasts** (SEAS5 SPI-3, ECMWF …):
+  https://source.coop/e4drr-project/forecasts
+- **ECMWF EPS — GRIB-index Parquet:**
+  https://huggingface.co/datasets/E4DRR/gik-ecmwf-par
+- **GEFS EPS — GRIB-index Parquet:**
+  https://huggingface.co/datasets/E4DRR/gik-gefs-par
+- **Flood hazard model output (RIM2D):**
+  https://huggingface.co/datasets/E4DRR/rim2d-simulations
+- **Drought hazard model output (wflow.jl):**
+  https://huggingface.co/datasets/E4DRR/wflow.jl-simulations
+
+---
+
+## Acknowledgements
+
+This work is part of the **E4DRR** project — *hazard modelling, impact estimation,
+and climate storylines building an event catalogue of drought and flood disasters
+in Eastern Africa*: https://icpac-igad.github.io/e4drr/
+
+Funded by the **United Nations Complex Risk Analytics Fund (CRAF'd)**.
+
+**Data & services** — built on open data from **AWS Open Data**, **ECMWF**,
+**NOAA**, the **EC Joint Research Centre (JRC) — Global Drought Observatory**, and
+ICPAC's **East Africa Hazard Watch**.
+
+**Open-source software** — powered by free and open-source tools, including
+**Icechunk**, **Xarray**, and **Kerchunk**.
 
 
