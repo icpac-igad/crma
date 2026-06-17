@@ -1,6 +1,8 @@
 # CRMA — Continuous Risk Monitoring and Assessment
 ## Scenario Simulation Exercise
 
+🌐 **CRMA scenario website:** https://crma-frontend-yiyrp6yumq-uc.a.run.app/scenario
+
 Participants relive a real East African **drought or flood** as it unfolded.
 Working only with the evidence available **at the time**, they grade each admin-1
 region with a risk colour — the call a Disaster Operations Centre (DOC) has to make.
