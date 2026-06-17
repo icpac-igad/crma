@@ -3,6 +3,8 @@
 
 🌐 **CRMA scenario website:** https://crma-frontend-yiyrp6yumq-uc.a.run.app/scenario
 
+🌐 **Presentation Slide:** https://drive.google.com/file/d/1rR5uhCan3snwHgv6A-5ch6IXfw8ey6wj/view?usp=drive_link
+
 Participants relive a real East African **drought or flood** as it unfolded.
 Working only with the evidence available **at the time**, they grade each admin-1
 region with a risk colour — the call a Disaster Operations Centre (DOC) has to make.
