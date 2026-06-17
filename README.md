@@ -87,6 +87,20 @@ Analysis-Ready, Cloud-Optimized (**ARCO**) datasets and streaming formats:
 
 ---
 
+## Notebooks — open in Google Colab
+
+Per-event **ARCO → Bayesian-Network provenance** notebooks: how each event's
+evidence is streamed from the ARCO stores and turned into the BN risk grade.
+Open any one directly in Google Colab — no local setup:
+
+- **Kenya — Tana / ASAL drought 2020** — [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/nishadhka/crma/blob/main/notebooks/kenya_asal_drought_2020.ipynb)
+- **Burundi drought 2021** — [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/nishadhka/crma/blob/main/notebooks/burundi_drought_2021.ipynb)
+- **Eritrea Highlands drought 2021** — [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/nishadhka/crma/blob/main/notebooks/eritrea_highlands_drought_2021.ipynb)
+- **Djibouti drought 2022** — [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/nishadhka/crma/blob/main/notebooks/djibouti_drought_2022.ipynb)
+- **Kenya — Nairobi flood 2026** — [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/nishadhka/crma/blob/main/notebooks/nairobi_flood_2026.ipynb)
+
+---
+
 ## Acknowledgements
 
 This work is part of the **E4DRR** project — *hazard modelling, impact estimation,
